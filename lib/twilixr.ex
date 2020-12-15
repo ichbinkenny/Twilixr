@@ -42,8 +42,19 @@ defmodule Twilixr do
     end
   end
 
-  def is_streamer_live(_username) do
-
+  def is_streamer_live(username) do
+    case HTTPoison.get(base_url() <> channels_tag() <> query_tag() <> username, default_headers()) do
+    {:ok, %HTTPoison.Response{status_code: 200, body: data}} -> 
+      case Poison.decode(~s(#{data})) do
+        {:ok, user_list} -> 
+        case Enum.at(user_list, 0) do
+          {"data", users} -> (Enum.at(users, 0))["is_live"]
+          _ -> false
+        end
+        _ -> false
+      end
+    _ -> false
+    end
   end
 
   def concat_scopes() do
