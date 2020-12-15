@@ -22,7 +22,11 @@ defmodule Twilixr do
       case HTTPoison.post(app_auth_url(), "", default_headers()) do
         {:ok, %HTTPoison.Response{status_code: 200, body: body}} -> { 
           case Poison.decode(~s(#{body})) do
-            {:ok, data} -> IO.puts("Please add the token: #{data["access_token"]} to your config file as access_token: \"TOKEN HERE\",")
+            {:ok, data} -> 
+              case Map.fetch(data, "access_token") do
+                {:ok, data} -> IO.puts("New access token: #{data}. Please add it to the config file as access_token: \"#{data}\"")
+                _ -> IO.puts("Failed to set token!")              
+              end
             _ -> IO.puts("I was unable to parse the response received from Twitch.TV. Please try again!")
           end
         }
